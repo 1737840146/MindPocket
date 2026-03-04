@@ -1,6 +1,11 @@
 {
   "version": 1,
   "skills": {
+    "agent-browser": {
+      "source": "vercel-labs/agent-browser",
+      "sourceType": "github",
+      "computedHash": "57bfa07d34f966bccf791d49c9b6ce507fbba08f7dbf9e2ad15809e2dd29041e"
+    },
     "brainstorming": {
       "source": "obra/superpowers",
       "sourceType": "github",
@@ -15,6 +20,11 @@
       "source": "leonxlnx/taste-skill",
       "sourceType": "github",
       "computedHash": "b405eee0e0e80fc243f731d9aa368bca307e356db7e6157d27101d369dac6726"
+    },
+    "social-push": {
+      "source": "jihe520/social-push",
+      "sourceType": "github",
+      "computedHash": "9e45fb0b569f2770af24bc9f222c47565d45c21321400375f1ee1e40176d0da2"
     }
   }
 }
