@@ -62,7 +62,7 @@ MindPocket 将你的收藏内容进行分类存储，并通过 AI Agent 进行 R
 2. **Vercel 链接**
    - 在 Vercel 仪表盘点击 "New Project" → "Import Git Repository"
    - 选择你 Fork 的 MindPocket 仓库
-   - 点击 "Deploy"
+   - 选择 Root Directory "apps/web" 目录， 点击 "Deploy"
    - 在 "Integrations" 选项卡中，添加 Neon 集成，创建一个新的免费数据库实例，并连接到你的项目（Upstash 免费 Redis 也可以添加）
    - 连接 Vercel Blob 存储
    - 在 "Settings" → "Environment Variables" 中，添加环境变量（参考 [`apps/web/.env.example`](./apps/web/.env.example)）
