@@ -4,9 +4,6 @@
   "ui": "tui",
   "tasks": {
     "build": {
-      "inputs": ["$TURBO_DEFAULT$", ".env*", ".env.example"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
-      "dependsOn": ["^build"],
       "env": [
         "DATABASE_URL",
         "NEXT_PUBLIC_APP_URL",
@@ -17,7 +14,10 @@
         "KV_URL",
         "REDIS_URL",
         "OPENAI_API_KEY" 
-      ]
+      ],
+      "inputs": ["$TURBO_DEFAULT$", ".env*", ".env.example"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+      "dependsOn": ["^build"]
     },
     "dev": {
       "cache": false,
