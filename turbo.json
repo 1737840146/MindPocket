@@ -1,5 +1,16 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
+  "env": [
+    "DATABASE_URL",
+    "NEXT_PUBLIC_APP_URL",
+    "BETTER_AUTH_SECRET",
+    "BLOB_READ_WRITE_TOKEN",
+    "KV_REST_API_TOKEN",
+    "KV_REST_API_URL",
+    "KV_URL",
+    "REDIS_URL",
+    "OPENAI_API_KEY" // 若配置了AI相关变量也加上
+  ],
   "ui": "tui",
   "tasks": {
     "build": {
