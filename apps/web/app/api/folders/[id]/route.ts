@@ -7,9 +7,7 @@ import { auth } from "@/lib/auth"
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
+  const userId = session!.user!.id
 
   const { id } = await params
   const body = await request.json()
@@ -35,7 +33,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const result = await db
     .update(folder)
     .set(updates)
-    .where(and(eq(folder.id, id), eq(folder.userId, session.user.id)))
+    .where(and(eq(folder.id, id), eq(folder.userId, userId)))
     .returning({
       id: folder.id,
       name: folder.name,

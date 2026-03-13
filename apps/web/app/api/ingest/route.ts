@@ -1,3 +1,4 @@
+// 数据摄入 API，支持 URL、扩展程序和文件上传三种导入方式
 import { headers } from "next/headers"
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
@@ -34,11 +35,7 @@ const FILE_EXT_REGEX = /\.[^.]+$/
 
 export async function POST(request: Request) {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
-  const userId = session.user.id
+  const userId = session!.user!.id
   const contentType = request.headers.get("content-type") ?? ""
 
   try {

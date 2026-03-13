@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     headers: await headers(),
   })
 
-  if (!session?.user) {
+  if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 

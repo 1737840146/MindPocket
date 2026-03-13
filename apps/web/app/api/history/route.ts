@@ -9,16 +9,14 @@ export function OPTIONS(req: Request) {
 
 export async function GET(req: Request) {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) {
-    return withCors(req, new Response("Unauthorized", { status: 401 }))
-  }
+  const userId = session!.user!.id
 
   const { searchParams } = new URL(req.url)
   const limit = Number(searchParams.get("limit") || "20")
   const endingBefore = searchParams.get("ending_before") || undefined
 
   const chats = await getChatsByUserId({
-    id: session.user.id,
+    id: userId,
     limit,
     endingBefore,
   })

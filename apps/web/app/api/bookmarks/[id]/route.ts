@@ -9,12 +9,10 @@ import { auth } from "@/lib/auth"
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
+  const userId = session!.user!.id
 
   const { id } = await params
-  const item = await getBookmarkById({ id, userId: session.user.id })
+  const item = await getBookmarkById({ id, userId })
   if (!item) {
     return NextResponse.json({ error: "Not found" }, { status: 404 })
   }
@@ -26,12 +24,10 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
+  const userId = session!.user!.id
 
   const { id } = await params
-  const existing = await getBookmarkById({ id, userId: session.user.id })
+  const existing = await getBookmarkById({ id, userId })
   if (!existing) {
     return NextResponse.json({ error: "Not found" }, { status: 404 })
   }
@@ -56,7 +52,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       const [targetFolder] = await db
         .select({ id: folder.id })
         .from(folder)
-        .where(and(eq(folder.id, folderId.trim()), eq(folder.userId, session.user.id)))
+        .where(and(eq(folder.id, folderId.trim()), eq(folder.userId, userId)))
         .limit(1)
 
       if (!targetFolder) {
@@ -80,12 +76,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
+  const userId = session!.user!.id
 
   const { id } = await params
-  const existing = await getBookmarkById({ id, userId: session.user.id })
+  const existing = await getBookmarkById({ id, userId })
   if (!existing) {
     return NextResponse.json({ error: "Not found" }, { status: 404 })
   }

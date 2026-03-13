@@ -1,3 +1,4 @@
+// AI 聊天 API，处理流式对话请求
 import { createAgentUIStreamResponse, generateId, type UIMessage } from "ai"
 import { headers } from "next/headers"
 import { after } from "next/server"
@@ -35,9 +36,7 @@ export function OPTIONS(req: Request) {
 
 export async function GET(req: Request) {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) {
-    return withCors(req, new Response("Unauthorized", { status: 401 }))
-  }
+  const userId = session!.user!.id
 
   const { searchParams } = new URL(req.url)
   const id = searchParams.get("id")
@@ -47,7 +46,7 @@ export async function GET(req: Request) {
   }
 
   const chat = await getChatById({ id })
-  if (!chat || chat.userId !== session.user.id) {
+  if (!chat || chat.userId !== userId) {
     return withCors(req, new Response("Not found", { status: 404 }))
   }
 
@@ -73,9 +72,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) {
-    return withCors(req, new Response("Unauthorized", { status: 401 }))
-  }
+  const userId = session!.user!.id
 
   const {
     id,
@@ -90,8 +87,6 @@ export async function POST(req: Request) {
     useKnowledgeBase?: boolean
     useFolderTools?: boolean
   } = await req.json()
-
-  const userId = session.user.id
 
   // Resolve chat model config
   let config: Awaited<ReturnType<typeof getProviderWithDecryptedKey>> = null
@@ -207,14 +202,12 @@ export async function POST(req: Request) {
 
 export async function DELETE(req: Request) {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) {
-    return withCors(req, new Response("Unauthorized", { status: 401 }))
-  }
+  const userId = session!.user!.id
 
   const { id }: { id: string } = await req.json()
 
   const chat = await getChatById({ id })
-  if (!chat || chat.userId !== session.user.id) {
+  if (!chat || chat.userId !== userId) {
     return withCors(req, new Response("Not found", { status: 404 }))
   }
 

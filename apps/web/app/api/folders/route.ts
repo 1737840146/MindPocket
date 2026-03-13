@@ -8,9 +8,7 @@ import { auth } from "@/lib/auth"
 
 export async function GET() {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) {
-    return new Response("Unauthorized", { status: 401 })
-  }
+  const userId = session!.user!.id
 
   const folders = await db
     .select({
@@ -21,7 +19,7 @@ export async function GET() {
       sortOrder: folder.sortOrder,
     })
     .from(folder)
-    .where(eq(folder.userId, session.user.id))
+    .where(eq(folder.userId, userId))
     .orderBy(folder.sortOrder)
 
   // 获取每个文件夹下的书签（最多显示 5 条）
@@ -42,9 +40,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) {
-    return new Response("Unauthorized", { status: 401 })
-  }
+  const userId = session!.user!.id
 
   const body = await request.json()
   const name = typeof body.name === "string" ? body.name.trim() : ""
@@ -60,13 +56,13 @@ export async function POST(request: Request) {
   const [max] = await db
     .select({ maxOrder: sql<number>`coalesce(max(${folder.sortOrder}), -1)` })
     .from(folder)
-    .where(eq(folder.userId, session.user.id))
+    .where(eq(folder.userId, userId))
 
   const newFolder = await db
     .insert(folder)
     .values({
       id: nanoid(),
-      userId: session.user.id,
+      userId,
       name,
       description,
       emoji,
@@ -85,9 +81,7 @@ export async function POST(request: Request) {
 
 export async function PATCH(request: Request) {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) {
-    return new Response("Unauthorized", { status: 401 })
-  }
+  const userId = session!.user!.id
 
   const body = await request.json()
   const orderedIds = Array.isArray(body.orderedIds) ? body.orderedIds : []
@@ -99,7 +93,7 @@ export async function PATCH(request: Request) {
   const userFolders = await db
     .select({ id: folder.id })
     .from(folder)
-    .where(and(eq(folder.userId, session.user.id), inArray(folder.id, orderedIds)))
+    .where(and(eq(folder.userId, userId), inArray(folder.id, orderedIds)))
 
   if (userFolders.length !== orderedIds.length) {
     return Response.json({ error: "Invalid folder ids" }, { status: 400 })
@@ -111,7 +105,7 @@ export async function PATCH(request: Request) {
       db
         .update(folder)
         .set({ sortOrder: index })
-        .where(and(eq(folder.id, id), eq(folder.userId, session.user.id)))
+        .where(and(eq(folder.id, id), eq(folder.userId, userId)))
     )
   )
 
@@ -120,9 +114,7 @@ export async function PATCH(request: Request) {
 
 export async function DELETE(request: Request) {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) {
-    return new Response("Unauthorized", { status: 401 })
-  }
+  const userId = session!.user!.id
 
   const body = await request.json()
   const id = typeof body.id === "string" ? body.id : ""
@@ -130,7 +122,7 @@ export async function DELETE(request: Request) {
     return Response.json({ error: "缺少文件夹 ID" }, { status: 400 })
   }
 
-  await db.delete(folder).where(and(eq(folder.id, id), eq(folder.userId, session.user.id)))
+  await db.delete(folder).where(and(eq(folder.id, id), eq(folder.userId, userId)))
 
   return Response.json({ success: true })
 }

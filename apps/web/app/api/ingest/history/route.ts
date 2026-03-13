@@ -1,3 +1,4 @@
+// 摄入历史 API，获取用户的内容摄入记录和状态
 import { INGEST_STATUSES } from "@repo/types"
 import { and, desc, eq, inArray, lt, type SQL } from "drizzle-orm"
 import { headers } from "next/headers"
@@ -10,9 +11,10 @@ const STALE_TIMEOUT_MS = 5 * 60 * 1000 // 5 minutes
 
 export async function GET(request: Request) {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) {
+  if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
+  const userId = session.user.id
 
   // Auto-fail stale pending/processing bookmarks older than 5 minutes
   const staleThreshold = new Date(Date.now() - STALE_TIMEOUT_MS)
@@ -21,7 +23,7 @@ export async function GET(request: Request) {
     .set({ ingestStatus: "failed", ingestError: "Ingest timed out" })
     .where(
       and(
-        eq(bookmark.userId, session.user.id),
+        eq(bookmark.userId, userId),
         inArray(bookmark.ingestStatus, ["pending", "processing"]),
         lt(bookmark.createdAt, staleThreshold)
       )
@@ -32,7 +34,7 @@ export async function GET(request: Request) {
   const limit = Math.min(Number(searchParams.get("limit")) || 20, 100)
   const offset = Number(searchParams.get("offset")) || 0
 
-  const conditions: SQL[] = [eq(bookmark.userId, session.user.id)]
+  const conditions: SQL[] = [eq(bookmark.userId, userId)]
 
   if (status && INGEST_STATUSES.includes(status as (typeof INGEST_STATUSES)[number])) {
     conditions.push(eq(bookmark.ingestStatus, status))

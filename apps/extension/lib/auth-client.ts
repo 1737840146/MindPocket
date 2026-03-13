@@ -4,7 +4,7 @@ const TOKEN_KEY = "mindpocket_token"
 const USER_KEY = "mindpocket_user"
 
 export async function getServerUrl(): Promise<string> {
-  const result = await chrome.storage.local.get(SERVER_KEY)
+  const result = await chrome.storage.local.get<Record<string, string>>(SERVER_KEY)
   return result[SERVER_KEY] || DEFAULT_SERVER
 }
 
@@ -13,7 +13,7 @@ export async function setServerUrl(url: string): Promise<void> {
 }
 
 export async function getToken(): Promise<string | null> {
-  const result = await chrome.storage.local.get(TOKEN_KEY)
+  const result = await chrome.storage.local.get<Record<string, string>>(TOKEN_KEY)
   return result[TOKEN_KEY] || null
 }
 
@@ -26,7 +26,10 @@ export async function removeToken(): Promise<void> {
 }
 
 export async function getCachedUser(): Promise<{ id: string; name: string; email: string } | null> {
-  const result = await chrome.storage.local.get(USER_KEY)
+  const result =
+    await chrome.storage.local.get<Record<string, { id: string; name: string; email: string }>>(
+      USER_KEY
+    )
   return result[USER_KEY] || null
 }
 

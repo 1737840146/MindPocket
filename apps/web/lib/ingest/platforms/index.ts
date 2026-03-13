@@ -1,17 +1,24 @@
+/**
+ * 平台转换模块
+ * 针对不同平台（微信、小红书、B站）使用专门的转换逻辑
+ */
+
 import type { BilibiliCredentials } from "@repo/types"
 import { convertHtml } from "../converter"
 import { convertBilibili } from "./bilibili"
 import { convertWechat } from "./wechat"
 import { convertXiaohongshu } from "./xiaohongshu"
 
+// 转换结果类型
 export interface ConvertResult {
   title: string | null
   markdown: string
 }
 
-/** 不需要浏览器渲染的平台，可直接从 URL 解析 */
+/** 不需要浏览器渲染的平台（可以直接从 URL 解析） */
 const BROWSER_FREE_PLATFORMS = new Set(["bilibili"])
 
+/** 判断平台是否需要浏览器渲染 */
 export function needsBrowser(platform: string | null): boolean {
   if (!platform) {
     return false
@@ -21,6 +28,7 @@ export function needsBrowser(platform: string | null): boolean {
 
 /**
  * 不需要 HTML 的平台转换（直接从 URL 解析）
+ * 适用于 bilibili 等可以通过 API 获取内容的平台
  */
 export async function convertWithoutHtml(
   url: string,
@@ -37,6 +45,7 @@ export async function convertWithoutHtml(
 
 /**
  * 需要 HTML 的平台转换
+ * 适用于微信、小红书等需要解析 HTML 的平台
  */
 export async function convertWithPlatform(
   html: string,
@@ -49,6 +58,7 @@ export async function convertWithPlatform(
     case "xiaohongshu":
       return await convertXiaohongshu(html, url)
     default:
+      // 未知平台使用通用 HTML 转换
       return await convertHtml(html, url)
   }
 }

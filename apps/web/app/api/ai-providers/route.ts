@@ -14,19 +14,15 @@ const createSchema = z.object({
 
 export async function GET() {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 })
-  }
+  const userId = session!.user!.id
 
-  const providers = await getProvidersByUserId(session.user.id)
+  const providers = await getProvidersByUserId(userId)
   return Response.json(providers)
 }
 
 export async function POST(req: Request) {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 })
-  }
+  const userId = session!.user!.id
 
   const body = await req.json()
   const parsed = createSchema.safeParse(body)
@@ -35,7 +31,7 @@ export async function POST(req: Request) {
   }
 
   const { id } = await createProvider({
-    userId: session.user.id,
+    userId,
     ...parsed.data,
   })
 

@@ -10,12 +10,9 @@ export async function GET() {
   const session = await auth.api.getSession({
     headers: await import("next/headers").then((m) => m.headers()),
   })
+  const userId = session!.user!.id
 
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
-  const hasCredentials = await hasBilibiliCredentials(session.user.id)
+  const hasCredentials = await hasBilibiliCredentials(userId)
   return NextResponse.json({ hasCredentials })
 }
 
@@ -23,10 +20,7 @@ export async function POST(request: Request) {
   const session = await auth.api.getSession({
     headers: await import("next/headers").then((m) => m.headers()),
   })
-
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
+  const userId = session!.user!.id
 
   try {
     const body = await request.json()
@@ -39,7 +33,7 @@ export async function POST(request: Request) {
       )
     }
 
-    await saveBilibiliCredentials(session.user.id, {
+    await saveBilibiliCredentials(userId, {
       sessdata,
       biliJct,
       buvid3,
@@ -56,13 +50,10 @@ export async function DELETE() {
   const session = await auth.api.getSession({
     headers: await import("next/headers").then((m) => m.headers()),
   })
-
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
+  const userId = session!.user!.id
 
   try {
-    await deleteBilibiliCredentials(session.user.id)
+    await deleteBilibiliCredentials(userId)
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Failed to delete Bilibili credentials:", error)

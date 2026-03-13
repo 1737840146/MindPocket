@@ -5,9 +5,7 @@ import { auth } from "@/lib/auth"
 
 export async function GET(request: Request) {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) {
-    return new Response("Unauthorized", { status: 401 })
-  }
+  const userId = session!.user!.id
 
   const { searchParams } = new URL(request.url)
   const q = searchParams.get("q")?.trim() || ""
@@ -17,7 +15,7 @@ export async function GET(request: Request) {
   const limit = Math.min(Number(searchParams.get("limit") || "20"), 50)
 
   const result = await searchBookmarks({
-    userId: session.user.id,
+    userId,
     q,
     mode,
     scope: "compact",

@@ -1,3 +1,4 @@
+// 认证 API，统一处理登录、注册、登出等认证请求
 import { toNextJsHandler } from "better-auth/next-js"
 import { auth } from "@/lib/auth"
 import { corsPreflight, withCors } from "@/lib/cors"

@@ -9,11 +9,7 @@ import { auth } from "@/lib/auth"
 
 export async function GET(request: Request) {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) {
-    return new Response("Unauthorized", { status: 401 })
-  }
-
-  const userId = session.user.id
+  const userId = session!.user!.id
   const { searchParams } = new URL(request.url)
   const days = Number(searchParams.get("days") || "30")
 

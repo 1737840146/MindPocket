@@ -6,12 +6,10 @@ import { auth } from "@/lib/auth"
 
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 })
-  }
+  const userId = session!.user!.id
 
   const { id } = await params
-  const provider = await getProviderWithDecryptedKey(id, session.user.id)
+  const provider = await getProviderWithDecryptedKey(id, userId)
   if (!provider) {
     return Response.json({ error: "Not found" }, { status: 404 })
   }

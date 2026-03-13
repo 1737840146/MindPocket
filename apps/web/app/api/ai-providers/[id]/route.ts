@@ -13,9 +13,7 @@ const updateSchema = z.object({
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 })
-  }
+  const userId = session!.user!.id
 
   const { id } = await params
   const body = await req.json()
@@ -24,17 +22,15 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     return Response.json({ error: parsed.error.flatten() }, { status: 400 })
   }
 
-  await updateProvider(id, session.user.id, parsed.data)
+  await updateProvider(id, userId, parsed.data)
   return Response.json({ ok: true })
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 })
-  }
+  const userId = session!.user!.id
 
   const { id } = await params
-  await deleteProvider(id, session.user.id)
+  await deleteProvider(id, userId)
   return Response.json({ ok: true })
 }

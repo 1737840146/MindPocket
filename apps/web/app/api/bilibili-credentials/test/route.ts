@@ -2,13 +2,9 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 
 export async function POST(request: Request) {
-  const session = await auth.api.getSession({
+  const _session = await auth.api.getSession({
     headers: await import("next/headers").then((m) => m.headers()),
   })
-
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
 
   try {
     const body = await request.json()

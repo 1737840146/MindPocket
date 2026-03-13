@@ -1,22 +1,35 @@
+/**
+ * 小红书笔记转换模块
+ * 解析小红书页面的 meta 标签，提取标题、描述和图片
+ */
+
 import { convertHtml } from "../converter"
 import type { ConvertResult } from "./index"
 
+// 小红书标题正则（两种格式）
 const TITLE_REGEX = /<meta[^>]+name="og:title"[^>]+content="([^"]+)"/i
 const TITLE_REGEX_ALT = /<meta[^>]+property="og:title"[^>]+content="([^"]+)"/i
+
+// 小红书描述正则
 const DESC_REGEX = /<meta[^>]+name="description"[^>]+content="([^"]+)"/i
+
+// 小红书图片正则（og:image）
 const XHS_IMG_REGEX = /<meta[^>]+name="og:image"[^>]+content="([^"]+)"/gi
 const XHS_IMG_ALT_REGEX = /<meta[^>]+property="og:image"[^>]+content="([^"]+)"/gi
 
+/** 从 meta 标签提取标题 */
 function extractTitle(html: string): string | null {
   const match = html.match(TITLE_REGEX) || html.match(TITLE_REGEX_ALT)
   return match ? match[1].trim() : null
 }
 
+/** 从 meta 标签提取描述 */
 function extractDescription(html: string): string | null {
   const match = html.match(DESC_REGEX)
   return match ? match[1].trim() : null
 }
 
+/** 从 meta 标签提取图片列表 */
 function extractImages(html: string): string[] {
   const images: string[] = []
   const seen = new Set<string>()
@@ -35,6 +48,11 @@ function extractImages(html: string): string[] {
   return images
 }
 
+/**
+ * 将小红书笔记转换为 Markdown
+ * - 从 meta 标签提取标题、描述、图片
+ * - 如果提取失败，降级到通用 HTML 转换
+ */
 export async function convertXiaohongshu(html: string, url: string): Promise<ConvertResult | null> {
   const title = extractTitle(html)
   const description = extractDescription(html)
@@ -47,21 +65,25 @@ export async function convertXiaohongshu(html: string, url: string): Promise<Con
 
   const parts: string[] = []
 
+  // 标题
   if (title) {
     parts.push(`# ${title}`)
     parts.push("")
   }
 
+  // 描述
   if (description) {
     parts.push(description)
     parts.push("")
   }
 
+  // 图片
   for (const img of images) {
     parts.push(`![](${img})`)
     parts.push("")
   }
 
+  // 来源链接
   parts.push(`**来源**：${url}`)
 
   return { title, markdown: parts.join("\n") }

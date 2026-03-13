@@ -1,5 +1,8 @@
 # CLAUDE.md
 
+
+写代码简单注释
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview

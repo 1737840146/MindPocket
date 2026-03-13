@@ -1,8 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { auth } from "@/lib/auth"
 
 const publicRoutes = ["/login", "/signup", "/api/auth", "/api/check-registration"]
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const origin = request.headers.get("origin") ?? ""
   const isChromeExtension = origin.startsWith("chrome-extension://")
@@ -30,12 +31,17 @@ export function proxy(request: NextRequest) {
     return response
   }
 
-  // 检查 session cookie（生产环境 HTTPS 下 cookie 带 __Secure- 前缀）
-  const sessionToken =
-    request.cookies.get("better-auth.session_token") ||
-    request.cookies.get("__Secure-better-auth.session_token")
+  // 验证 session 有效性
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  })
 
-  if (!sessionToken) {
+  if (!session) {
+    // API 请求返回 401
+    if (pathname.startsWith("/api/")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+    // 页面请求重定向
     return NextResponse.redirect(new URL("/login", request.url))
   }
 

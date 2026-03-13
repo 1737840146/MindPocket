@@ -31,7 +31,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
         },
         onSuccess: () => {
           toast.success("登录成功")
-          router.push("/")
+          window.location.href = "/"
         },
       },
     })

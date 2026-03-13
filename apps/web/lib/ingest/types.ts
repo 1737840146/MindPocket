@@ -1,12 +1,13 @@
 /**
- * Ingest type definitions
- * Re-exports common types from @repo/types and adds web-specific types
+ * 类型定义模块
+ * 导入并扩展 @repo/types 中的共享类型，添加 Web 端特定的验证 Schema
  */
 
 import type { BookmarkType } from "@repo/types"
 import { CLIENT_SOURCES, inferPlatform as inferPlatformBase } from "@repo/types"
 import { z } from "zod"
 
+// 重新导出公共类型
 export type {
   BookmarkType,
   ClientSource,
@@ -15,7 +16,7 @@ export type {
   SourceType,
 } from "@repo/types"
 
-// Re-export from @repo/types
+// 重新导出公共常量
 // biome-ignore lint/performance/noBarrelFile: This module intentionally centralizes ingest-related shared exports.
 export {
   BOOKMARK_TYPES,
@@ -26,7 +27,9 @@ export {
   URL_TYPE_PATTERNS,
 } from "@repo/types"
 
-// Zod schemas (web-specific validation)
+// ==================== Web 端特定的 Schema ====================
+
+/** URL 导入的请求验证 Schema */
 export const ingestUrlSchema = z.object({
   url: z.string().url(),
   folderId: z.string().trim().min(1).optional(),
@@ -34,6 +37,7 @@ export const ingestUrlSchema = z.object({
   clientSource: z.enum(CLIENT_SOURCES),
 })
 
+/** 浏览器扩展导入的请求验证 Schema */
 export const ingestExtensionSchema = z.object({
   url: z.string().url(),
   html: z.string().min(1).optional(),
@@ -42,7 +46,9 @@ export const ingestExtensionSchema = z.object({
   clientSource: z.enum(CLIENT_SOURCES),
 })
 
-// File extension to bookmark type mapping (web-specific)
+// ==================== 文件类型映射 ====================
+
+/** 文件扩展名到书签类型的映射 */
 export const EXTENSION_TYPE_MAP: Record<string, BookmarkType> = {
   ".pdf": "document",
   ".docx": "document",
@@ -67,5 +73,5 @@ export const EXTENSION_TYPE_MAP: Record<string, BookmarkType> = {
   ".zip": "other",
 }
 
-// Re-export inferPlatform from @repo/types
+// 重新导出 inferPlatform
 export const inferPlatform = inferPlatformBase

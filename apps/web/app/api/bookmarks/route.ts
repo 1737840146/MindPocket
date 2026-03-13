@@ -6,10 +6,7 @@ import { auth } from "@/lib/auth"
 
 export async function GET(request: Request) {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) {
-    return new Response("Unauthorized", { status: 401 })
-  }
-
+  const userId = session!.user!.id
   const { searchParams } = new URL(request.url)
   const type = searchParams.get("type") || undefined
   const platform = searchParams.get("platform") || undefined
@@ -22,7 +19,7 @@ export async function GET(request: Request) {
 
   if (search) {
     const result = await searchBookmarks({
-      userId: session.user.id,
+      userId,
       q: search,
       mode: searchMode,
       scope: searchScope,
@@ -56,7 +53,7 @@ export async function GET(request: Request) {
   }
 
   const result = await getBookmarksByUserId({
-    userId: session.user.id,
+    userId,
     type,
     platform,
     folderId,
